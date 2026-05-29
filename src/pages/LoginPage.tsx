@@ -5,22 +5,18 @@ import { useNavigate } from "react-router";
 function LoginPage() {
 
     const navigate = useNavigate();
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [creds, setCreds] = useState({
+        username: "",
+        password: ""
+    });
     
-    const checkUser = (() => {
-        const url = "http://localhost:9010/api/users?username=" + username;
-        axios.get(url)
-            .then((response) => {
-                if(response.data[0].password_hash == password) {
-                    navigate("/main")
-                } else {
-                    console.error("Placeholder: da cambiare");
-                }
-            })
-    })
-
-
+    const checkUser = async (ev: any) => {
+        ev.preventDefault();
+        const url = import.meta.env.VITE_BASEURL + "/api/auth/login"
+        const response = await axios.post(url, creds);
+        localStorage.setItem("accessToken", response.data.token)
+        navigate("/home")
+    }
 
     return (
         <>
@@ -30,16 +26,22 @@ function LoginPage() {
                     <input 
                         type="text" 
                         className="form-control w-25" 
-                        placeholder="Username" 
-                        value={username} 
-                        onChange={(ev) => setUsername(ev.target.value)} 
+                        placeholder="Username"
+                        value={creds.username} 
+                        onChange={(ev) => setCreds({
+                            ...creds,
+                            [creds.username]: ev.target.value
+                            })} 
                     />
                     <input 
                         type="password" 
                         className="form-control w-25" 
-                        placeholder="Password" 
-                        value={password} 
-                        onChange={(ev) => setPassword(ev.target.value)} 
+                        placeholder="Password"
+                        value={creds.password} 
+                        onChange={(ev) => setCreds({
+                            ...creds,
+                            [creds.password]: ev.target.value
+                            })} 
                     />
                     <button className="btn btn-primary" onClick={checkUser}> Accedi </button>
                 </div>
